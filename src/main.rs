@@ -222,8 +222,8 @@ fn set_authentication_headers(req: &mut Request) {
     req.set_header("x-amz-date", now.format("%Y%m%dT%H%M%SZ").to_string());
 }
 
-#[cfg(not(feature = "auth"))]
 // Stub for when authentication feature is disabled
+#[cfg(not(feature = "auth"))]
 fn set_authentication_headers(_: &mut Request) {}
 
 /// Removes all headers but those defined in `ALLOWED_HEADERS` from a response.
@@ -249,4 +249,24 @@ fn create_cors_response(allowed_origins: HeaderValue) -> Response {
         )
         .with_header(header::ACCESS_CONTROL_MAX_AGE, "86400")
         .with_header(header::CACHE_CONTROL, "public, max-age=86400")
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn headers_filtered() {
+        let mut r = fastly::Response::new();
+        r.append_header("content-type", "text/html");
+        r.append_header("content-length", "123");
+        r.append_header("foo", "bar");
+
+        filter_headers(&mut r);
+
+        assert_eq!(r.contains_header("content-type"), true);
+        assert_eq!(r.contains_header("content-length"), true);
+        assert_eq!(r.contains_header("foo"), false);
+    }
 }

@@ -8,4 +8,4 @@ build: test
 	cargo build --target wasm32-wasi --features auth --release
 
 test:
-	CARGO_TARGET_WASM32_WASI_RUNNER=true cargo test --target wasm32-wasi
+	cargo test --target x86_64-unknown-linux-gnu --features auth
